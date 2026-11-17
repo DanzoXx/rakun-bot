@@ -2976,6 +2976,11 @@ def main():
                             reply_to_message_id=message_id,
                         )
                         print(f"Replied {DOG_EMOJI} to Novan message {message_id} from {sender_id}", flush=True)
+                    # Reaksi juga untuk pesan Taro: handler trigger ini
+                    # tadinya return awal sebelum kode reaksi, jadi pesan
+                    # "novan" dari Taro cuma dapat stiker tanpa reaksi.
+                    if sender_id == ALLOWED_USER_ID:
+                        react(chat_id, message_id)
                     continue
                 # Aturan rakun: berlaku untuk siapa saja, reply stiker custom
                 if TRIGGER_RAKUN in text.lower():
@@ -2990,6 +2995,11 @@ def main():
                         print(f"Replied sticker to rakun message {message_id} from {sender_id}", flush=True)
                     else:
                         print(f"Rakun trigger but no sticker saved yet, message {message_id}", flush=True)
+                    # Reaksi juga untuk pesan Taro: handler trigger ini
+                    # tadinya return awal sebelum kode reaksi, jadi pesan
+                    # "rakun" dari Taro cuma dapat stiker tanpa reaksi.
+                    if sender_id == ALLOWED_USER_ID:
+                        react(chat_id, message_id)
                     continue
                 # Perintah /youtube <link>: download video YouTube (termasuk Shorts)
                 # lewat API, berlaku untuk siapa saja.
