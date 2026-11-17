@@ -43,15 +43,22 @@ def get_novan_sticker_file_id():
 # Berlaku untuk siapa saja. Stikernya diambil dari last_sticker.txt,
 # yang terisi hanya saat Taro sendiri yang kirim stiker ke bot
 # (stiker dari orang lain di grup tidak boleh menimpa stiker Taro).
+# Fallback: stiker rakun habemuscoon 😋 (disimpan 2026-11-15). Dipakai
+# kalau last_sticker.txt hilang — mis. setelah redeploy di Infrlo, yang
+# filesystem-nya ephemeral dan menghapus file runtime.
 TRIGGER_RAKUN = "rakun"
 STICKER_FILE = os.path.join(os.path.dirname(__file__), "last_sticker.txt")
+DEFAULT_RAKUN_STICKER_FILE_ID = "CAACAgEAAxkBAAMpavm1s8REkbAqOJ5Ly0Vq5xvrS-EAApIFAAK7TWIULqXmpg2qfvE9BA"
 
 def get_sticker_file_id():
     try:
         with open(STICKER_FILE) as f:
-            return f.read().strip()
+            saved = f.read().strip()
+            if saved:
+                return saved
     except Exception:
-        return ""
+        pass
+    return DEFAULT_RAKUN_STICKER_FILE_ID
 
 # Download video TikTok tanpa watermark.
 # yt-dlp mengambil file video aslinya dari TikTok, jadi tidak ada watermark.
