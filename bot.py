@@ -2853,8 +2853,9 @@ def main():
         pass
     threading.Thread(target=mon_sweeper, daemon=True).start()
     threading.Thread(target=cuaca_pagi_thread, daemon=True).start()
-    threading.Thread(target=livescore_run, daemon=True).start()
-    threading.Thread(target=livescore_ls_run, daemon=True).start()
+    # Livescore DIMATIKAN 2026-11-17 atas permintaan Taro (tidak ada notif gol otomatis lagi).
+    # threading.Thread(target=livescore_run, daemon=True).start()
+    # threading.Thread(target=livescore_ls_run, daemon=True).start()
     offset = None
     while True:
         try:
