@@ -2027,12 +2027,13 @@ def do_cuaca(chat_id, message_id, sender_id, arg):
             pass
 
 # Cuaca pagi otomatis: tiap hari jam 7 pagi WIB, bot kirim info cuaca
-# kota random di Indonesia ke grup. Jalan sebagai thread di dalam bot.py
+# Cuaca pagi otomatis: kirim cuaca 1 kota random Indonesia ke grup
+# tiap hari jam 07:00 WIB. Jalan sebagai thread di dalam bot.py
 # (program biasa, tanpa token Muse AI).
-# Kalau komputer kereset pas jam 7 dan cuaca pagi kelewat, bot kirim
-# langsung setelah komputer nyala (catch-up), jangan tunggu besok.
-# Tanggal terakhir terkirim disimpan di cuaca_pagi_last.txt supaya
-# tidak double-kirim kalau bot restart di hari yang sama.
+# HANYA jam 7 pagi, 1x sehari — TIDAK ada catch-up. Kalau bot restart
+# setelah jam 7, jangan kirim lagi hari itu (tunggu jam 7 besok).
+# Tanggal terakhir terkirim disimpan di cuaca_pagi_last.txt sebagai
+# pengaman supaya tidak double-kirim di sekitar jam 7.
 CUACA_PAGI_GROUP_ID = -1003337200559
 CUACA_PAGI_HOUR = 7
 CUACA_PAGI_LAST_FILE = os.path.join(os.path.dirname(__file__), "cuaca_pagi_last.txt")
@@ -2089,20 +2090,17 @@ def cuaca_pagi_thread():
         except Exception as e:
             print(f"Gagal simpan tanggal cuaca pagi: {e}", flush=True)
 
+    # TIDAK ADA catch-up: cuaca pagi HANYA dikirim pas jam 7 pagi.
+    # Kalau bot restart/mati-hidup setelah jam 7, jangan kirim lagi hari
+    # itu (tunggu jam 7 besok). Ini mencegah spam cuaca tiap restart,
+    # karena di Infrlo file cuaca_pagi_last.txt tidak bertahan saat
+    # redeploy (filesystem container di-reset), jadi catch-up selalu
+    # mengira hari ini belum kekirim.
     while True:
         try:
             now = datetime.now(tz)
-            today = now.strftime("%Y-%m-%d")
-            # Catch-up: sudah jam 7 pagi (atau lebih) tapi hari ini belum
-            # kekirim (misal komputer baru nyala habis kereset) -> kirim sekarang.
-            if now.hour >= CUACA_PAGI_HOUR and last_sent() != today:
-                print(f"Cuaca pagi: catch-up, kirim sekarang untuk {today}", flush=True)
-                if cuaca_pagi_kirim():
-                    mark_sent(today)
-                else:
-                    time.sleep(60)
-                continue
-            # Belum jam 7 / sudah kekirim hari ini: tunggu sampai jam 7 berikutnya.
+            # Hitung jam 7 pagi berikutnya (kalau sudah lewat jam 7 hari
+            # ini, targetnya jam 7 besok — jangan kirim hari ini lagi).
             target = now.replace(hour=CUACA_PAGI_HOUR, minute=0, second=0, microsecond=0)
             if now >= target:
                 target = target + timedelta(days=1)
@@ -2113,8 +2111,12 @@ def cuaca_pagi_thread():
                 if wait <= 0:
                     break
                 time.sleep(min(60, wait))
+            today = datetime.now(tz).strftime("%Y-%m-%d")
+            if last_sent() == today:
+                print(f"Cuaca pagi: {today} sudah terkirim, lewati.", flush=True)
+                continue
             if cuaca_pagi_kirim():
-                mark_sent(datetime.now(tz).strftime("%Y-%m-%d"))
+                mark_sent(today)
             else:
                 time.sleep(60)
         except Exception as e:
