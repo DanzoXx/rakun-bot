@@ -29,15 +29,23 @@ DOG_EMOJI = "🐶"
 # Stiker custom buat trigger "novan". Diambil dari novan_sticker.txt,
 # yang terisi saat Taro kirim stiker ke bot di chat pribadi setelah
 # perintah /setnovan.
+# Fallback: stiker Novan 😝 dari set "omskwit" (dikirim Taro 2026-11-17
+# ~20:04 WIB). Dipakai kalau novan_sticker.txt hilang — mis. setelah
+# redeploy di Infrlo, yang filesystem-nya ephemeral dan menghapus
+# file runtime.
 NOVAN_STICKER_FILE = os.path.join(os.path.dirname(__file__), "novan_sticker.txt")
+DEFAULT_NOVAN_STICKER_FILE_ID = "CAACAgUAAxkBAANMavu2xuJQYICF3fwzocWaJdPYzaMAAs8gAAKJBgFX4XtryP8ik5M9BA"
 AWAITING_NOVAN_STICKER = set()
 
 def get_novan_sticker_file_id():
     try:
         with open(NOVAN_STICKER_FILE) as f:
-            return f.read().strip()
+            saved = f.read().strip()
+            if saved:
+                return saved
     except Exception:
-        return ""
+        pass
+    return DEFAULT_NOVAN_STICKER_FILE_ID
 
 # Kalau ada yang kirim pesan berisi "rakun", bot reply dengan stiker custom.
 # Berlaku untuk siapa saja. Stikernya diambil dari last_sticker.txt,
