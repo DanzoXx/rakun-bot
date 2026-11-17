@@ -1,0 +1,17 @@
+# Data & secrets — jangan di-commit
+balances.json
+monsters.json
+usernames.json
+cuaca_limits.json
+cuaca_pagi_last.txt
+last_sticker.txt
+novan_sticker.txt
+ai_limits.json
+*.log
+*.env
+.env
+proxy.env
+downloads/
+__pycache__/
+*.bak
+*.bak2

@@ -1,0 +1,4 @@
+requests==2.31.0
+Pillow
+yt-dlp==2026.10.26
+curl-cffi
